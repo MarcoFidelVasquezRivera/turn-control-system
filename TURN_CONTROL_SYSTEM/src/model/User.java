@@ -4,23 +4,33 @@ public class User {
 //+++++++++++++++++++++++++++++++++++
 //	         CONSTANTS
 //+++++++++++++++++++++++++++++++++++
-	public static String TI ="targeta de identidad";
-	public static String CC ="cedula de ciudadania";
-	public static String RC ="registro civil";
-	public static String PASSPORT ="pasaporte";
-	public static String FOREIGN_IDENTITY_CARD="foreign identity card";
+	public final static String TI ="targeta de identidad";
+	public final static String CC ="cedula de ciudadania";
+	public final static String RC ="registro civil";
+	public final static String PASSPORT ="pasaporte";
+	public final static String FOREIGN_IDENTITY_CARD="foreign identity card";
 //+++++++++++++++++++++++++++++++++++
 //    		 ATTRIBUTES
 //+++++++++++++++++++++++++++++++++++
 	private String typeId;
 	private String id;
-	private String fistNames;
+	private String firstNames;
 	private String lastNames;
 	private String adress; 
 	private String telephone;
+	private Turn turn = null;
 //+++++++++++++++++++++++++++++++++++
 //        	  METHODS
 //+++++++++++++++++++++++++++++++++++
+	public User(String typeId, String id, String firstNames, String lastNames, String adress, String telephone) {
+		this.typeId=typeId;
+		this.id=id;
+		this.firstNames=firstNames;
+		this.lastNames=lastNames;
+		this.adress=adress;
+		this.telephone=telephone;
+	}
+	
 	public String getTypeId() {
 		return typeId;
 	}
@@ -38,11 +48,11 @@ public class User {
 	}
 	
 	public String getFistNames() {
-		return fistNames;
+		return firstNames;
 	}
 	
 	public void setFistNames(String fistNames) {
-		this.fistNames = fistNames;
+		this.firstNames = fistNames;
 	}
 	
 	public String getLastNames() {
@@ -67,6 +77,18 @@ public class User {
 	
 	public void setTelephone(String telephone) {
 		this.telephone = telephone;
+	}
+
+	public Turn getTurn() {
+		return turn;
+	}
+
+	public void setTurn(Turn turn) {
+		this.turn = turn;
+	}
+	
+	public void setTurn(String number, String userName, String userId, String userStatus) {
+		this.turn = new Turn(number,userName,userId,userStatus);
 	}
 	
 }

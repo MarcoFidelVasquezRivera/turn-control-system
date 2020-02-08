@@ -4,9 +4,9 @@ public class Turn {
 //+++++++++++++++++++++++++++++++++++
 //    CONSTANTS
 //+++++++++++++++++++++++++++++++++++
-	public static String ATTENDED="attended";
-	public static String USER_WAS_NOT="user was not";
-	public static String NOT_ATTENDED_YET="not attended yet";
+	public final static String ATTENDED="attended";
+	public final static String USER_WAS_NOT="user was not";
+	public final static String NOT_ATTENDED_YET="not attended yet";
 //+++++++++++++++++++++++++++++++++++
 //	 ATTRIBUTES
 //+++++++++++++++++++++++++++++++++++
@@ -17,6 +17,13 @@ public class Turn {
 //+++++++++++++++++++++++++++++++++++
 //	  METHODS
 //+++++++++++++++++++++++++++++++++++
+	public Turn(String number, String userName, String userId, String userStatus) {
+		this.number=number;
+		this.userName=userName;
+		this.userId=userId;
+		this.userStatus=userStatus;
+	}
+	
 	public String getNumber() {
 		return number;
 	}
