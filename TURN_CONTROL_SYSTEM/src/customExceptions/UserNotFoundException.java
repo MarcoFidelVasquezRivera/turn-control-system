@@ -6,19 +6,17 @@ public class UserNotFoundException extends Exception {
 //	 ATTRIBUTES
 //+++++++++++++++++++++++++++++++++++
 	private String userId;
-	private String userName;
 //+++++++++++++++++++++++++++++++++++
 //	  METHODS
 //+++++++++++++++++++++++++++++++++++
-	public UserNotFoundException(String userId, String userName) {
+	public UserNotFoundException(String userId) {
 		super("the user was not found: ");
 		this.userId=userId;
-		this.userName=userName;
 	}
 	
 	@Override
 	public String getMessage() {
-		return super.getMessage()+"\n Name:"+userName+"\n id"+userId;
+		return super.getMessage()+"\n id"+userId;
 	}
 	
 }
