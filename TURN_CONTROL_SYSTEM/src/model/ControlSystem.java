@@ -108,7 +108,12 @@ public class ControlSystem {
 		}
 	}
 	
-	public String  showNextTurn() {
+	public String  showNextTurn() throws ThereAreNoTurnsForAttendException {
+		
+		if(users.get(0).getTurn()==null) {
+			throw new ThereAreNoTurnsForAttendException();
+		}
+		
 		return users.get(0).toString();
 	}
 	
