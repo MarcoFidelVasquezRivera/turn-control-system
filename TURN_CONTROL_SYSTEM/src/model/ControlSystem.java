@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 
+import customExceptions.ThereAreNoTurnsForAttendException;
 import customExceptions.UserAlreadyExistException;
 import customExceptions.UserAlreadyHasATurnException;
 import customExceptions.UserNotFoundException;
@@ -30,7 +31,6 @@ public class ControlSystem {
 		if(users.isEmpty()) {
 			users.add(new User(typeId,id,firstNames,lastNames,adress,telephone));
 		}else {
-			
 			for(int i=0;0<users.size();i++) {
 				if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId)) {
 					throw new UserAlreadyExistException(id,firstNames+" "+lastNames,typeId);
@@ -44,6 +44,7 @@ public class ControlSystem {
 	public String searchUser(String id, String typeId) throws UserNotFoundException {
 		boolean flag=true;
 		String message="";
+		
 		if(users.isEmpty()) {
 			throw new UserNotFoundException(id,typeId);
 		}else {
@@ -61,19 +62,36 @@ public class ControlSystem {
 	}
 	
 	
-	public void assignTurn(String id, String typeId) throws UserNotFoundException, UserAlreadyHasATurnException {
+	public String assignTurn(String id, String typeId) throws UserNotFoundException, UserAlreadyHasATurnException {
 		searchUser(id,typeId);
+		String message="";
+		boolean flag=false;
+		User auxUser=null;
 		
-		for(int i=0;i<users.size();i++) {
+		for(int i=0;i<users.size() && !flag;i++) {
 			if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getTurn()!=null) {
 				throw new UserAlreadyHasATurnException(id,typeId,users.get(i).getFistNames(),users.get(i).getTurn().getNumber());
 				
 			}else if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getTurn()==null) {	
+				
 				users.get(i).setTurn(String.valueOf(alphabet[letter])+Integer.toString(nTwo)+Integer.toString(nOne), users.get(i).getFistNames()+users.get(i).getLastNames(), users.get(i).getId(), Turn.NOT_ATTENDED_YET);
+				message="the turn has been assigned: \n"+users.get(i).getTurn().getNumber();
+				
+				for(int j=0;j<users.size() && users.get(j).getTurn()==null;j++) {
+					//if(users.get(j).getTurn()==null) {
+						auxUser = users.get(j);
+						users.set(j,users.get(i));
+						users.set(i, auxUser);//bring the user with the new turn until the first position
+					//}                         //without a turn and exchange the two users
+				}
+				
 				passTurn();	
+				flag=true;
 			}
 		}
+		return message;
 	}
+	
 	
 	public void passTurn() {
 		nOne++;
@@ -90,5 +108,35 @@ public class ControlSystem {
 		}
 	}
 	
+	public String  showNextTurn() {
+		return users.get(0).toString();
+	}
+	
+	public void attendTurn(String status) throws ThereAreNoTurnsForAttendException {
+		User auxUser=null;
+		
+		if(users.get(0).getTurn()==null) {
+			throw new ThereAreNoTurnsForAttendException();
+		}else {
+			turnsAttended.add(users.get(0).getTurn());
+			turnsAttended.get(turnsAttended.size()-1).setUserStatus(status);
+			users.get(0).setTurn(null);
+			
+			for(int i=1;i<users.size() && users.get(i).getTurn() !=null;i++) {
+				//if(users.get(i).getTurn() !=null) {
+					auxUser = users.get(i);
+					users.set(i-1,users.get(i));
+					users.set(i, auxUser);
+				//}
+			}
+		}
+	}
+	
+	
+	public void resetTurns() {
+		letter=0;
+		nOne=0;
+		nTwo=0;
+	}
 	
 }

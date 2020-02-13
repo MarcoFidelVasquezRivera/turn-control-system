@@ -8,7 +8,7 @@ public class User {
 	public final static String CC ="cedula de ciudadania";
 	public final static String RC ="registro civil";
 	public final static String PASSPORT ="pasaporte";
-	public final static String FOREIGN_IDENTITY_CARD="foreign identity card";
+	public final static String FOREIGN_IDENTITY_CARD="cadula de ciudadania extrangera";
 //+++++++++++++++++++++++++++++++++++
 //    		 ATTRIBUTES
 //+++++++++++++++++++++++++++++++++++

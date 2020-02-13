@@ -49,4 +49,8 @@ public class Turn {
 		this.userStatus = userStatus;
 	}
 	
+	public String toString() {
+		return "user name: "+userName+"\n user ID: "+userId+"\n turn number: "+number;
+	}
+	
 }
