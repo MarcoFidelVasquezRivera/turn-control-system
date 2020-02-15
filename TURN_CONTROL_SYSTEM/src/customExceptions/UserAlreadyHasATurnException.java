@@ -22,7 +22,7 @@ public class UserAlreadyHasATurnException extends Exception {
 	
 	@Override
 	public String getMessage() {
-		return super.getMessage()+"\n Name:"+userName+"\n type Id: "+typeId+"\n id"+userId+"\n turn number"+turnNumber;
+		return super.getMessage()+"\n Name:"+userName+"\n type Id: "+typeId+"\n id: "+userId+"\n turn number: "+turnNumber;
 	}
 	
 }

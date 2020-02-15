@@ -31,7 +31,7 @@ public class ControlSystem {
 		if(users.isEmpty()) {
 			users.add(new User(typeId,id,firstNames,lastNames,adress,telephone));
 		}else {
-			for(int i=0;0<users.size();i++) {
+			for(int i=0;i<users.size();i++) {
 				if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId)) {
 					throw new UserAlreadyExistException(id,firstNames+" "+lastNames,typeId);
 				}
@@ -49,9 +49,10 @@ public class ControlSystem {
 			throw new UserNotFoundException(id,typeId);
 		}else {
 			for(int i=0;i<users.size();i++) {
-				if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(id)) {
+				if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId)) {
 					message=users.get(i).toString();
 					flag=false;
+					
 				}
 			}
 			if(flag) {
@@ -69,20 +70,20 @@ public class ControlSystem {
 		User auxUser=null;
 		
 		for(int i=0;i<users.size() && !flag;i++) {
+	
 			if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getTurn()!=null) {
-				throw new UserAlreadyHasATurnException(id,typeId,users.get(i).getFirstNames(),users.get(i).getTurn().getNumber());
-				
+				throw new UserAlreadyHasATurnException(id,typeId,users.get(i).getFirstNames(),users.get(i).getTurn().getNumber());			
 			}else if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getTurn()==null) {	
 				
 				users.get(i).setTurn(String.valueOf(alphabet[letter])+Integer.toString(nTwo)+Integer.toString(nOne), users.get(i).getFirstNames()+users.get(i).getLastNames(), users.get(i).getId(), Turn.NOT_ATTENDED_YET);
 				message="the turn has been assigned: \n"+users.get(i).getTurn().getNumber();
-				
-				for(int j=0;j<users.size() && users.get(j).getTurn()==null;j++) {
-					//if(users.get(j).getTurn()==null) {
+			
+				for(int j=i;j>=1 && users.get(j-1).getTurn()==null;j--) {
+		
 						auxUser = users.get(j);
-						users.set(j,users.get(i));
-						users.set(i, auxUser);//bring the user with the new turn until the first position
-					//}                         //without a turn and exchange the two users
+						users.set(j,users.get(j-1));
+						users.set(j-1, auxUser);//bring the user with the new turn until the first position
+					                          //without a turn and exchange the two users
 				}
 				
 				passTurn();	
@@ -114,7 +115,7 @@ public class ControlSystem {
 			throw new ThereAreNoTurnsForAttendException();
 		}
 		
-		return users.get(0).toString();
+		return users.get(0).getTurn().getNumber();
 	}
 	
 	public void attendTurn(String status) throws ThereAreNoTurnsForAttendException {
@@ -142,6 +143,14 @@ public class ControlSystem {
 		letter=0;
 		nOne=0;
 		nTwo=0;
+	}
+	
+	public String getNumber() {
+		return String.valueOf(alphabet[letter])+Integer.toString(nTwo)+Integer.toString(nOne);
+	}
+	
+	public ArrayList<User> getUsers() {
+		return users;
 	}
 	
 }

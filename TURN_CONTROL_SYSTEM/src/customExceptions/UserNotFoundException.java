@@ -18,7 +18,7 @@ public class UserNotFoundException extends Exception {
 	
 	@Override
 	public String getMessage() {
-		return super.getMessage()+"\n type id: "+typeId+"\n id"+userId;
+		return super.getMessage()+"\n type id: "+typeId+"\n id: "+userId;
 	}
 	
 }
