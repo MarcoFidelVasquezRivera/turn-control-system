@@ -70,11 +70,11 @@ public class ControlSystem {
 		
 		for(int i=0;i<users.size() && !flag;i++) {
 			if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getTurn()!=null) {
-				throw new UserAlreadyHasATurnException(id,typeId,users.get(i).getFistNames(),users.get(i).getTurn().getNumber());
+				throw new UserAlreadyHasATurnException(id,typeId,users.get(i).getFirstNames(),users.get(i).getTurn().getNumber());
 				
 			}else if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getTurn()==null) {	
 				
-				users.get(i).setTurn(String.valueOf(alphabet[letter])+Integer.toString(nTwo)+Integer.toString(nOne), users.get(i).getFistNames()+users.get(i).getLastNames(), users.get(i).getId(), Turn.NOT_ATTENDED_YET);
+				users.get(i).setTurn(String.valueOf(alphabet[letter])+Integer.toString(nTwo)+Integer.toString(nOne), users.get(i).getFirstNames()+users.get(i).getLastNames(), users.get(i).getId(), Turn.NOT_ATTENDED_YET);
 				message="the turn has been assigned: \n"+users.get(i).getTurn().getNumber();
 				
 				for(int j=0;j<users.size() && users.get(j).getTurn()==null;j++) {

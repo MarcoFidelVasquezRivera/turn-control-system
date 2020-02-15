@@ -16,18 +16,18 @@ public class User {
 	private String id;
 	private String firstNames;
 	private String lastNames;
-	private String adress; 
+	private String address; 
 	private String telephone;
 	private Turn turn = null;
 //+++++++++++++++++++++++++++++++++++
 //        	  METHODS
 //+++++++++++++++++++++++++++++++++++
-	public User(String typeId, String id, String firstNames, String lastNames, String adress, String telephone) {
+	public User(String typeId, String id, String firstNames, String lastNames, String address, String telephone) {
 		this.typeId=typeId;
 		this.id=id;
 		this.firstNames=firstNames;
 		this.lastNames=lastNames;
-		this.adress=adress;
+		this.address=address;
 		this.telephone=telephone;
 	}
 	
@@ -47,7 +47,7 @@ public class User {
 		this.id = id;
 	}
 	
-	public String getFistNames() {
+	public String getFirstNames() {
 		return firstNames;
 	}
 	
@@ -63,12 +63,12 @@ public class User {
 		this.lastNames = lastNames;
 	}
 	
-	public String getAdress() {
-		return adress;
+	public String getAddress() {
+		return address;
 	}
 	
-	public void setAdress(String adress) {
-		this.adress = adress;
+	public void setAddress(String adress) {
+		this.address = adress;
 	}
 	
 	public String getTelephone() {
