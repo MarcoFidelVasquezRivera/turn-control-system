@@ -59,7 +59,7 @@ class ControlSystemTest {
 		
 		try {
 			cs.addNewUser(User.CC, "1006309297", "Marco Fidel", "Vasquez Rivera", "333-444", "3163886825");
-			fail("the method add new user is adding a user that already exist");
+			fail("the method addNewUser is adding a user that already exist");
 		}catch(UserAlreadyExistException e) {
 			
 		}
@@ -108,7 +108,6 @@ class ControlSystemTest {
 			cs.assignTurn("1006345256", User.CC);
 		}catch(UserAlreadyHasATurnException e) {
 			assertTrue("the exception message is not the correct",e.getMessage().equalsIgnoreCase("The user already has an active turn: " +"\n Name:David Steven\n" +" type Id: cedula de ciudadania\n" + " id: 1006345256\n" +" turn number: A00"));
-			System.out.println(e.getMessage());
 		}catch(UserNotFoundException e) {
 			fail("assignTurn method is not working correctly, is throwing an exception when it shouldn't");
 		}

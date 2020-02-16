@@ -91,4 +91,13 @@ public class User {
 		this.turn = new Turn(number,userName,userId,userStatus);
 	}
 	
+	/**
+	 * <b>Name:</b> toString.<br>
+	 * This method returns the information of the user.<br>
+	 * @return a message with the information of the user.<br>
+	*/
+	public String toString() {
+		return "type ID: "+typeId+"\nID: "+id+"\nfirst names: "+firstNames+"\nlast names: "+lastNames+"\naddress"+address+"\ntelephone: "+telephone;
+	}
+	
 }
