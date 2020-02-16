@@ -97,7 +97,7 @@ public class User {
 	 * @return a message with the information of the user.<br>
 	*/
 	public String toString() {
-		return "type ID: "+typeId+"\nID: "+id+"\nfirst names: "+firstNames+"\nlast names: "+lastNames+"\naddress"+address+"\ntelephone: "+telephone;
+		return "type ID: "+typeId+"\nID: "+id+"\nfirst names: "+firstNames+"\nlast names: "+lastNames+"\naddress: "+address+"\ntelephone: "+telephone;
 	}
 	
 }

@@ -294,7 +294,7 @@ public class Main {
 		boolean a=false;
 		
 		do {
-			System.out.println("please enter the user status: \nEnter 1 for attended \n enter 2 for user was not");
+			System.out.println("please enter the user status: \nEnter 1 for attended \nEnter 2 for user was not");
 			stat=Integer.parseInt(reader.nextLine());
 			if(stat>0 && stat<=2) {
 				a=true;
