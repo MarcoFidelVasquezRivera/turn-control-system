@@ -60,6 +60,5 @@ public class DateTimeDiff {
 	public void setYearsDiff(int yearsDiff) {
 		this.yearsDiff = yearsDiff;
 	}
-
 	
 }

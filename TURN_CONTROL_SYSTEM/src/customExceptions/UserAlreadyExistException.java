@@ -12,7 +12,7 @@ public class UserAlreadyExistException extends Exception {
 //	  METHODS
 //+++++++++++++++++++++++++++++++++++
 	public UserAlreadyExistException(String userId, String userName,String typeId) {
-		super("the already Exist: ");
+		super("the user already Exist: ");
 		this.userId=userId;
 		this.userName=userName;
 		this.typeId=typeId;

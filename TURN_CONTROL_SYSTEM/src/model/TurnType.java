@@ -1,11 +1,11 @@
 package model;
 
-public class TypeTurn {
+public class TurnType {
 	
 	public String name;
 	public double minutesDelay;
 	
-	public TypeTurn(String n, double m) {
+	public TurnType(String n, double m) {
 		name=n;
 		minutesDelay=m;
 	}

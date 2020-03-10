@@ -1,18 +1,24 @@
 package model;
 
 import java.util.ArrayList;
-
-import customExceptions.ThereAreNoTurnsForAttendException;
-import customExceptions.UserAlreadyExistException;
-import customExceptions.UserAlreadyHasATurnException;
-import customExceptions.UserNotFoundException;
+import customExceptions.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Random;
 
 public class ControlSystem {
 //+++++++++++++++++++++++++++++++++++
 //	 ATTRIBUTES
 //+++++++++++++++++++++++++++++++++++
+	public static final String[] ADDRESS_WORD= {"carrera","calle","transversal","avenida"};
+	public static final String NAMES_PATH="files"+File.separator+"names.txt";
+	public static final String LASTNAMES_PATH="files"+File.separator+"lastNames.txt";
 	private ArrayList<User> users = new ArrayList<User>();
 	private ArrayList<Turn> turnsAttended = new ArrayList<Turn>();
+	private ArrayList<TurnType> turnType = new ArrayList<TurnType>();
 	private int letter;
 	private int nOne;
 	private int nTwo;
@@ -211,5 +217,73 @@ public class ControlSystem {
 	public ArrayList<User> getUsers() {
 		return users;
 	}
+	
+	//crear un metodo para crear un tipo de turno
+	public void generateTurnType(String name, double delay) throws TurnAlreadyExistException{
+		TurnType newTT = new TurnType(name,delay); 
+		
+		if(turnType.isEmpty()) {
+			turnType.add(newTT);
+		}else {
+			for(int i=0;i<turnType.size();i++) {
+				if(turnType.get(i).getName().equalsIgnoreCase(name)) {
+					throw new TurnAlreadyExistException(name);
+				}
+			}
+			turnType.add(newTT);
+		}	
+	}
+	
+	//crear un metodo para crear un usuario al azar
+	public void generateRandomUser() throws FileNotFoundException,IOException, UserAlreadyExistException {
+		String name;
+		String lastNames;
+		String typeId="";
+		String id;
+		String telephone;
+		String address;
+		int nId;
+		Random r= new Random();
+		BufferedReader brNames = new BufferedReader(new FileReader(new File(NAMES_PATH)));
+		BufferedReader brLastNames = new BufferedReader(new FileReader(new File(LASTNAMES_PATH)));
+		
+		String[] n = brNames.readLine().split(";");
+		String[] ln = brLastNames.readLine().split(";");
+		
+		name = n[r.nextInt(n.length)];
+		lastNames = ln[r.nextInt(n.length)]+" "+ln[r.nextInt(n.length)];
+		nId=r.nextInt(5);
+		
+		switch (nId) {
+			case 0:
+				typeId=User.TI;
+				break;
+			case 1:
+				typeId=User.CC;
+				break;
+			case 2:
+				typeId=User.RC;
+				break;
+			case 3:
+				typeId=User.PASSPORT;
+				break;
+			case 4:
+				typeId=User.FOREIGN_IDENTITY_CARD;
+				break;
+		}
+		
+		id=String.valueOf((long)(1000000000+(r.nextDouble()*9999999999.0)-1000000000));
+		address = ADDRESS_WORD[r.nextInt(ADDRESS_WORD.length)]+" "+String.valueOf(r.nextInt(100))+"#"+String.valueOf(r.nextInt(10000));
+		telephone = String.valueOf((long)(3000000000.0+(r.nextDouble()*3999999999.0)-3000000000.0));
+		
+		addNewUser(typeId, id, name, lastNames, address, telephone);
+	}
+	
+	
+	//crear un metodo para actualizar fecha (dos) con sobrecarga
+	
+	//crear un metodo para atender turnos hasta la fecha
+	
+	//crear un metodo para generar turnos al azar, poniendo el total de dias y el numero de turnos por dia
 	
 }
