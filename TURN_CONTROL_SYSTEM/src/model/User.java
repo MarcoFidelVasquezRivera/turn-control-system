@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+
 public class User {
 //+++++++++++++++++++++++++++++++++++
 //	         CONSTANTS
@@ -18,7 +20,7 @@ public class User {
 	private String lastNames;
 	private String address; 
 	private String telephone;
-	private Turn turn = null;
+	private ArrayList<Turn> turn = new ArrayList<Turn>();
 //+++++++++++++++++++++++++++++++++++
 //        	  METHODS
 //+++++++++++++++++++++++++++++++++++
@@ -79,17 +81,34 @@ public class User {
 		this.telephone = telephone;
 	}
 
+	public boolean getActiveTurn() {
+		boolean activeTurn = false;
+		
+		for(int i=0;i<turn.size();i++) {
+			if(turn.get(i).getUserStatus().equalsIgnoreCase(Turn.NOT_ATTENDED_YET)) {
+				activeTurn=true;
+			}
+		}
+		
+		return activeTurn;
+	}
+	
 	public Turn getTurn() {
-		return turn;
+		Turn activeTurn=null;
+		
+		for(int i=0;i<turn.size();i++) {
+			if(turn.get(i).getUserStatus().equalsIgnoreCase(Turn.NOT_ATTENDED_YET)) {
+				activeTurn=turn.get(i);
+			}
+		}
+		
+		return activeTurn;
 	}
 
 	public void setTurn(Turn turn) {
-		this.turn = turn;
+		this.turn.add(turn);
 	}
 	
-	public void setTurn(String number, String userName, String userId, String userStatus) {
-		this.turn = new Turn(number,userName,userId,userStatus);
-	}
 	
 	/**
 	 * <b>Name:</b> toString.<br>

@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Random;
+import java.util.GregorianCalendar;
+import java.util.Calendar;
 
 public class ControlSystem {
 //+++++++++++++++++++++++++++++++++++
@@ -15,10 +17,14 @@ public class ControlSystem {
 //+++++++++++++++++++++++++++++++++++
 	public static final String[] ADDRESS_WORD= {"carrera","calle","transversal","avenida"};
 	public static final String NAMES_PATH="files"+File.separator+"names.txt";
-	public static final String LASTNAMES_PATH="files"+File.separator+"lastNames.txt";
+	public static final String LASTNAMES_PATH="files"+File.separator+"lastName.txt";
 	private ArrayList<User> users = new ArrayList<User>();
+	private ArrayList<Turn> turns = new ArrayList<Turn>();
 	private ArrayList<Turn> turnsAttended = new ArrayList<Turn>();
 	private ArrayList<TurnType> turnType = new ArrayList<TurnType>();
+	private DateTime dateTimeDiff = new DateTime();
+	private DateTime lastAttended = new DateTime();
+	private DateTime current = new DateTime();
 	private int letter;
 	private int nOne;
 	private int nTwo;
@@ -100,7 +106,7 @@ public class ControlSystem {
 	 * @throws UserAlreadyHasATurnException.<br> 
 	 * @return returns the number of the turn or.<br>
 	*/
-	public String assignTurn(String id, String typeId) throws UserNotFoundException, UserAlreadyHasATurnException {
+	public String assignTurn(String id, String typeId,TurnType tp) throws UserNotFoundException, UserAlreadyHasATurnException {
 		searchUser(id,typeId);
 		String message="";
 		boolean flag=false;
@@ -108,20 +114,14 @@ public class ControlSystem {
 		
 		for(int i=0;i<users.size() && !flag;i++) {
 	
-			if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getTurn()!=null) {
+			if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getActiveTurn()!=false) {
 				throw new UserAlreadyHasATurnException(id,typeId,users.get(i).getFirstNames(),users.get(i).getTurn().getNumber());			
-			}else if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getTurn()==null) {	
+			}else if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getActiveTurn()==false) {	
 				
-				users.get(i).setTurn(String.valueOf(alphabet[letter])+Integer.toString(nTwo)+Integer.toString(nOne), users.get(i).getFirstNames()+users.get(i).getLastNames(), users.get(i).getId(), Turn.NOT_ATTENDED_YET);
+				Turn newTurn = new Turn(String.valueOf(alphabet[letter])+Integer.toString(nTwo)+Integer.toString(nOne), users.get(i).getFirstNames()+users.get(i).getLastNames(), users.get(i).getId(), Turn.NOT_ATTENDED_YET,tp);
+				users.get(i).setTurn(newTurn);
+				turns.add(newTurn);
 				message="the turn has been assigned: \n"+users.get(i).getTurn().getNumber();
-			
-				for(int j=i;j>=1 && users.get(j-1).getTurn()==null;j--) {
-		
-						auxUser = users.get(j);
-						users.set(j,users.get(j-1));
-						users.set(j-1, auxUser);//bring the user with the new turn until the first position
-					                          //without a turn and exchange the two users
-				}
 				
 				passTurn();	
 				flag=true;
@@ -160,15 +160,11 @@ public class ControlSystem {
 	 * @return returns a message with next turn to attend.<br>
 	*/
 	public String  showNextTurn() throws ThereAreNoTurnsForAttendException {
-		if(users.isEmpty()) {
+		if(turns.isEmpty()) {
 			throw new ThereAreNoTurnsForAttendException();
 		}
 		
-		if(users.get(0).getTurn()==null) {
-			throw new ThereAreNoTurnsForAttendException();
-		}
-		
-		return users.get(0).getTurn().getNumber();
+		return turns.get(0).getNumber();
 	}
 	
 	/**
@@ -179,25 +175,30 @@ public class ControlSystem {
 	 * @throws ThereAreNoTurnsForAttendException.<br> 
 	 * @return void.<br>
 	*/
-	public void attendTurn(String status) throws ThereAreNoTurnsForAttendException {
-		User auxUser=null;
+	
+	public void attendTurn() throws ThereAreNoTurnsForAttendException {
+		String status="";
+		Random r = new Random();
+		int s = r.nextInt(2);
 		
-		if(users.get(0).getTurn()==null) {
+		switch(s) {
+			case 1:
+				status = Turn.ATTENDED;
+				break;
+			case 2:
+				status = Turn.USER_WAS_NOT;
+				break;
+		}
+		
+		if(turns.isEmpty()) {
 			throw new ThereAreNoTurnsForAttendException();
 		}else {
-			turnsAttended.add(users.get(0).getTurn());
+			turnsAttended.add(turns.get(0));
 			turnsAttended.get(turnsAttended.size()-1).setUserStatus(status);
-			users.get(0).setTurn(null);
-			
-			for(int i=1;i<users.size() && users.get(i).getTurn() !=null;i++) {
-				//if(users.get(i).getTurn() !=null) {
-					auxUser = users.get(i);
-					users.set(i-1,users.get(i));
-					users.set(i, auxUser);
-				//}
-			}
+			turns.remove(0);
 		}
 	}
+	
 	
 	/**
 	 * <b>Name:</b> resetTurns.<br>
@@ -242,13 +243,15 @@ public class ControlSystem {
 		String id;
 		String telephone;
 		String address;
-		int nId;
+		int nId=0;
 		Random r= new Random();
 		BufferedReader brNames = new BufferedReader(new FileReader(new File(NAMES_PATH)));
 		BufferedReader brLastNames = new BufferedReader(new FileReader(new File(LASTNAMES_PATH)));
 		
 		String[] n = brNames.readLine().split(";");
 		String[] ln = brLastNames.readLine().split(";");
+		brNames.close();
+		brLastNames.close();
 		
 		name = n[r.nextInt(n.length)];
 		lastNames = ln[r.nextInt(n.length)]+" "+ln[r.nextInt(n.length)];
@@ -281,9 +284,131 @@ public class ControlSystem {
 	
 	
 	//crear un metodo para actualizar fecha (dos) con sobrecarga
+	public void updateDate(int s, int m,int h,int d,int mo,int y) {
+		Calendar calendar = new GregorianCalendar();
+		int sd = s-dateTimeDiff.getSeconds()+calendar.get(Calendar.SECOND);
+		int md = m-dateTimeDiff.getMinutes()+calendar.get(Calendar.MINUTE);
+		int hd = h-dateTimeDiff.getHour()+calendar.get(Calendar.HOUR_OF_DAY);
+		int dd = d-dateTimeDiff.getDays()+calendar.get(Calendar.DAY_OF_MONTH);
+		int mod = mo-dateTimeDiff.getMonths()+calendar.get(Calendar.MONTH)+1;
+		int yd = y-dateTimeDiff.getYears()+calendar.get(Calendar.YEAR);
+		
+		
+		if(yd>0) {
+			update(s, m, h, d, mo, y,calendar);
+		}else if(yd==0 && mod>0){
+			update(s, m, h, d, mo, y,calendar);
+		}else if(yd==0 && mod==0 && dd>0) {
+			update(s, m, h, d, mo, y,calendar);
+		}else if(yd==0 && mod==0 && dd==0 && hd>0) {
+			update(s, m, h, d, mo, y,calendar);
+		}else if(yd==0 && mod==0 && dd==0 && hd==0 && md>0) {
+			update(s, m, h, d, mo, y,calendar);
+		}else if(yd==0 && mod==0 && dd==0 && hd==0 && md==0 && sd>0) {
+			update(s, m, h, d, mo, y,calendar);
+		}
+	}
+	
+	public void update(int s, int m,int h,int d,int mo,int y, Calendar calendar) {
+		dateTimeDiff.setSeconds(s+dateTimeDiff.getSeconds()-calendar.get(Calendar.SECOND));
+		dateTimeDiff.setMinutes(m+dateTimeDiff.getMinutes()-calendar.get(Calendar.MINUTE));
+		dateTimeDiff.setHour(h+dateTimeDiff.getHour()-calendar.get(Calendar.HOUR_OF_DAY));
+		dateTimeDiff.setDays(d+dateTimeDiff.getDays()-calendar.get(Calendar.DAY_OF_MONTH));
+		dateTimeDiff.setMonths(mo+dateTimeDiff.getMonths()-calendar.get(Calendar.MONTH)+1);
+		dateTimeDiff.setYears(y+dateTimeDiff.getYears()-calendar.get(Calendar.YEAR));
+	}
+	
+	public void updateDate() {
+		Calendar calendar = new GregorianCalendar();
+		current.setSeconds(calendar.get(Calendar.SECOND));
+		current.setMinutes(calendar.get(Calendar.MINUTE));
+		current.setHour(calendar.get(Calendar.HOUR_OF_DAY));
+		current.setDays(calendar.get(Calendar.DAY_OF_MONTH));
+		current.setMonths(calendar.get(Calendar.MONTH)+1);
+		current.setYears(calendar.get(Calendar.YEAR));
+	}
 	
 	//crear un metodo para atender turnos hasta la fecha
+	public void attendTurnsUntillActualDate() throws ThereAreNoTurnsForAttendException {
+		if(turns.isEmpty()) {
+			throw new ThereAreNoTurnsForAttendException();
+		}else {
+			boolean attended = true;
+			for(int i=0;i<turns.size() && attended;i++) {
+				Calendar calendar = new GregorianCalendar();
+				int minutes = (int)turns.get(0).getTurnType().getMinutesDelay();
+				int seconds = (int)((turns.get(0).getTurnType().getMinutesDelay()-minutes)*60);
+				
+				Calendar programDate = new GregorianCalendar();
+				programDate.add(Calendar.YEAR, dateTimeDiff.getYears());
+				programDate.add(Calendar.MONTH, dateTimeDiff.getMonths());
+				programDate.add(Calendar.DAY_OF_MONTH, dateTimeDiff.getDays());
+				programDate.add(Calendar.HOUR_OF_DAY, dateTimeDiff.getHour());
+				programDate.add(Calendar.MINUTE, dateTimeDiff.getMinutes());
+				programDate.add(Calendar.SECOND, dateTimeDiff.getSeconds());
+				 
+				Calendar la = new GregorianCalendar();
+				la.add(Calendar.YEAR, -(Calendar.YEAR-lastAttended.getYears()));
+				la.add(Calendar.MONTH, -(Calendar.MONTH-lastAttended.getMonths()));
+				la.add(Calendar.DAY_OF_MONTH, -(Calendar.DAY_OF_MONTH-lastAttended.getDays()));
+				la.add(Calendar.HOUR_OF_DAY, -(Calendar.HOUR_OF_DAY-dateTimeDiff.getHour()));
+				la.add(Calendar.MINUTE, -(Calendar.MINUTE-dateTimeDiff.getMinutes()));
+				la.add(Calendar.SECOND, -(Calendar.SECOND-dateTimeDiff.getSeconds()));
+				
+				la.add(la.get(Calendar.MINUTE), minutes);
+				la.add(la.get(Calendar.SECOND), seconds+15);
+				
+				if(la.getTimeInMillis()<=programDate.getTimeInMillis()) {
+					if(turns.isEmpty()) {
+						lastAttended.setYears(programDate.get(Calendar.YEAR));
+						lastAttended.setMonths(programDate.get(Calendar.MONTH));
+						lastAttended.setDays(programDate.get(Calendar.DAY_OF_MONTH));
+						lastAttended.setHour(programDate.get(Calendar.HOUR_OF_DAY));
+						lastAttended.setMinutes(programDate.get(Calendar.MINUTE));
+						lastAttended.setSeconds(programDate.get(Calendar.SECOND));
+						attended=false;
+					}else {
+						attendTurn();
+						lastAttended.setYears(la.get(Calendar.YEAR));
+						lastAttended.setMonths(la.get(Calendar.MONTH));
+						lastAttended.setDays(la.get(Calendar.DAY_OF_MONTH));
+						lastAttended.setHour(la.get(Calendar.HOUR_OF_DAY));
+						lastAttended.setMinutes(la.get(Calendar.MINUTE));
+						lastAttended.setSeconds(la.get(Calendar.SECOND));
+					}
+				}else {
+					attended=false;
+					lastAttended.setYears(programDate.get(Calendar.YEAR));
+					lastAttended.setMonths(programDate.get(Calendar.MONTH));
+					lastAttended.setDays(programDate.get(Calendar.DAY_OF_MONTH));
+					lastAttended.setHour(programDate.get(Calendar.HOUR_OF_DAY));
+					lastAttended.setMinutes(programDate.get(Calendar.MINUTE));
+					lastAttended.setSeconds(programDate.get(Calendar.SECOND));
+				}
+			}
+		}
+	}
 	
 	//crear un metodo para generar turnos al azar, poniendo el total de dias y el numero de turnos por dia
+	public void generateRandomTurn() throws UserNotFoundException, UserAlreadyHasATurnException, ThereIsNotTurnTypeException {
+		Random r = new Random();
+		int user = r.nextInt(users.size());
+		
+		if(turnType.isEmpty()) {
+			throw new ThereIsNotTurnTypeException();
+		}
+		String id = users.get(user).getId();
+		String typeId = users.get(user).getTypeId();
+		TurnType tp = turnType.get(r.nextInt(turnType.size()));
+		
+
+		assignTurn(id, typeId,tp);
+		passTurn();
+	}
+	
+	//public String ReportTurnsPerson() {
+		
+		//////////////
+	//}
 	
 }

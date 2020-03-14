@@ -80,11 +80,13 @@ public class Main {
 					}
 					break;
 				case 5:
+					/*
 					try {
 						main.fifthOption();
 					}catch(ThereAreNoTurnsForAttendException e){
 						System.out.println(e.getMessage());
 					}
+					*/
 					break;
 				case 6:
 					main.sixthOption();
@@ -288,6 +290,7 @@ public class Main {
 	 * This method gets the information to attend a turn and calls the method attendTurn.<br>
 	 * @throws ThereAreNoTurnsForAttendException.<br>
 	*/
+	/*
 	public void fifthOption() throws ThereAreNoTurnsForAttendException {
 		String status="";
 		int stat=0;
@@ -314,6 +317,7 @@ public class Main {
 		
 		cs.attendTurn(status);
 	}
+	*/
 	
 	/**
 	 * <b>Name:</b> secondOption.<br>
