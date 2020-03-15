@@ -1,6 +1,9 @@
 package model;
 
-public class Turn implements Comparable<Turn>{
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class Turn implements Comparable<Turn>, Serializable{
 //+++++++++++++++++++++++++++++++++++
 //    CONSTANTS
 //+++++++++++++++++++++++++++++++++++

@@ -1,6 +1,9 @@
 package model;
 
-public class TurnType {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class TurnType implements Serializable{
 	
 	public String name;
 	public double minutesDelay;

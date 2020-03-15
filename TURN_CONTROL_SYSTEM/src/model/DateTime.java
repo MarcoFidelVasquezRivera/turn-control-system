@@ -1,6 +1,9 @@
 package model;
 
-public class DateTime{
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class DateTime implements Serializable{
 
 	private int seconds=0;
 	private int minutes=0;

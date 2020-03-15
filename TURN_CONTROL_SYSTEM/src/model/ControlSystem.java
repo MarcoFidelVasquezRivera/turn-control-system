@@ -57,6 +57,7 @@ public class ControlSystem implements Serializable{
 	 * @throws UserAlreadyExistException<br> 
 	 * @return void<br>
 	*/
+	//////////////////////////////////////////////////////////////////////////////////
 	public void addNewUser(String typeId, String id, String firstNames, String lastNames, String adress, String telephone) throws UserAlreadyExistException {
 		if(users.isEmpty()) {
 			users.add(new User(typeId,id,firstNames,lastNames,adress,telephone));
@@ -79,6 +80,7 @@ public class ControlSystem implements Serializable{
 	 * @throws UserNotFoundException<br> 
 	 * @return returns a message with the information of the user.<br>
 	*/
+	//////////////////////////////////////////////////////////////////////////////
 	public String searchUser(String id, String typeId) throws UserNotFoundException {
 		boolean flag=true;
 		String message="";
@@ -111,6 +113,7 @@ public class ControlSystem implements Serializable{
 	 * @throws UserAlreadyHasATurnException.<br> 
 	 * @return returns the number of the turn or.<br>
 	*/
+	///////////////////////////////////////////////////////////////////////////////////////
 	public String assignTurn(String id, String typeId,TurnType tp) throws UserNotFoundException, UserAlreadyHasATurnException {
 		searchUser(id,typeId);
 		String message="";
@@ -121,17 +124,24 @@ public class ControlSystem implements Serializable{
 			if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getActiveTurn()!=false) {
 				throw new UserAlreadyHasATurnException(id,typeId,users.get(i).getFirstNames(),users.get(i).getTurn().getNumber());			
 			}else if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getActiveTurn()==false) {	
-				Calendar ca = new GregorianCalendar();
+				Calendar ca = Calendar.getInstance();
+				ca.add(Calendar.YEAR, dateTimeDiff.getYears());
+				ca.add(Calendar.MONTH, dateTimeDiff.getMonths());
+				ca.add(Calendar.DAY_OF_MONTH, dateTimeDiff.getDays());
+				ca.add(Calendar.HOUR_OF_DAY, dateTimeDiff.getHour());
+				ca.add(Calendar.MINUTE, dateTimeDiff.getMinutes());
+				ca.add(Calendar.SECOND, dateTimeDiff.getSeconds());
 				
-				Calendar userDate = new GregorianCalendar();
-				userDate.add(Calendar.YEAR, (-Calendar.YEAR+dateTimeDiff.getYears()));
-				userDate.add(Calendar.MONTH, (-Calendar.MONTH+dateTimeDiff.getMonths()));
-				userDate.add(Calendar.DAY_OF_MONTH, (-Calendar.DAY_OF_MONTH+dateTimeDiff.getDays()));
-				userDate.add(Calendar.HOUR_OF_DAY, (-Calendar.HOUR_OF_DAY+dateTimeDiff.getHour()));
-				userDate.add(Calendar.MINUTE, (-Calendar.MINUTE+dateTimeDiff.getMinutes()));
-				userDate.add(Calendar.SECOND, (-Calendar.SECOND+dateTimeDiff.getSeconds()));
+				DateTime ud = users.get(i).getDt();
+				Calendar userDate = Calendar.getInstance();
+				userDate.set(Calendar.YEAR, ud.getYears());
+				userDate.set(Calendar.MONTH, ud.getMonths());
+				userDate.set(Calendar.DAY_OF_MONTH, ud.getDays());
+				userDate.set(Calendar.HOUR_OF_DAY, ud.getHour());
+				userDate.set(Calendar.MINUTE, ud.getMinutes());
+				userDate.set(Calendar.SECOND, ud.getSeconds());
 				
-				if(ca.before(userDate)) {
+				if(userDate.before(ca)) {
 					Turn newTurn = new Turn(String.valueOf(alphabet[letter])+Integer.toString(nTwo)+Integer.toString(nOne), users.get(i).getFirstNames()+users.get(i).getLastNames(), users.get(i).getId(), Turn.NOT_ATTENDED_YET,tp,typeId);
 					users.get(i).setTurn(newTurn);
 					turns.add(newTurn);
@@ -151,7 +161,7 @@ public class ControlSystem implements Serializable{
 	 * <b>pos:</b> turn has been passed.<br>
 	 * @return void.<br>
 	*/
-	public void passTurn() {
+	public void passTurn() {////////////////////////////////////////////////////////////
 		nOne++;
 		if(nOne>9) {
 			nOne=0;
@@ -173,6 +183,7 @@ public class ControlSystem implements Serializable{
 	 * @throws ThereAreNoTurnsForAttendException.<br> 
 	 * @return returns a message with next turn to attend.<br>
 	*/
+	/////////////////////////////////////////////////////////////
 	public String  showNextTurn() throws ThereAreNoTurnsForAttendException {
 		if(turns.isEmpty()) {
 			throw new ThereAreNoTurnsForAttendException();
@@ -189,17 +200,17 @@ public class ControlSystem implements Serializable{
 	 * @throws ThereAreNoTurnsForAttendException.<br> 
 	 * @return void.<br>
 	*/
-	
+	/////////////////////////////////////////////////////////
 	public void attendTurn() throws ThereAreNoTurnsForAttendException {
 		String status="";
 		Random r = new Random();
 		int s = r.nextInt(2);
 		
 		switch(s) {
-			case 1:
+			case 0:
 				status = Turn.ATTENDED;
 				break;
-			case 2:
+			case 1:
 				status = Turn.USER_WAS_NOT;
 				break;
 		}
@@ -213,29 +224,9 @@ public class ControlSystem implements Serializable{
 			turns.remove(0);
 		}
 	}
-	
-	
-	/**
-	 * <b>Name:</b> resetTurns.<br>
-	 * This method resets the turn counter .<br>
-	 * @return void.<br>
-	*/
-	public void resetTurns() {
-		letter=0;
-		nOne=0;
-		nTwo=0;
-	}
-	
-	public String getNumber() {
-		return String.valueOf(alphabet[letter])+Integer.toString(nTwo)+Integer.toString(nOne);
-	}
-	
-	public ArrayList<User> getUsers() {
-		return users;
-	}
-	
+	///////////////////////////////////////////////
 	//crear un metodo para crear un tipo de turno
-	public void generateTurnType(String name, double delay) throws TurnAlreadyExistException{
+	public void generateTurnType(String name, double delay) throws TurnTypeAlreadyExistException{
 		TurnType newTT = new TurnType(name,delay); 
 		
 		if(turnType.isEmpty()) {
@@ -243,7 +234,7 @@ public class ControlSystem implements Serializable{
 		}else {
 			for(int i=0;i<turnType.size();i++) {
 				if(turnType.get(i).getName().equalsIgnoreCase(name)) {
-					throw new TurnAlreadyExistException(name);
+					throw new TurnTypeAlreadyExistException(name);
 				}
 			}
 			turnType.add(newTT);
@@ -297,42 +288,28 @@ public class ControlSystem implements Serializable{
 		addNewUser(typeId, id, name, lastNames, address, telephone);
 	}
 	
-	
+	/////////////////////////////////////////////////////////////
 	//crear un metodo para actualizar fecha (dos) con sobrecarga
 	public void updateDate(int s, int m,int h,int d,int mo,int y) {
-		Calendar calendar = new GregorianCalendar();
-		int sd = s-dateTimeDiff.getSeconds()+calendar.get(Calendar.SECOND);
-		int md = m-dateTimeDiff.getMinutes()+calendar.get(Calendar.MINUTE);
-		int hd = h-dateTimeDiff.getHour()+calendar.get(Calendar.HOUR_OF_DAY);
-		int dd = d-dateTimeDiff.getDays()+calendar.get(Calendar.DAY_OF_MONTH);
-		int mod = mo-dateTimeDiff.getMonths()+calendar.get(Calendar.MONTH)+1;
-		int yd = y-dateTimeDiff.getYears()+calendar.get(Calendar.YEAR);
+
+		int sd = s-(dateTimeDiff.getSeconds()+current.getSeconds());
+		int md = m-(dateTimeDiff.getMinutes()+current.getMinutes());
+		int hd = h-(dateTimeDiff.getHour()+current.getHour());
+		int dd = d-(dateTimeDiff.getDays()+current.getDays());
+		int mod = mo-(dateTimeDiff.getMonths()+current.getMonths());
+		int yd = y-(dateTimeDiff.getYears()+current.getYears());
 		
 		
-		if(yd>0) {
-			update(s, m, h, d, mo, y,calendar);
-		}else if(yd==0 && mod>0){
-			update(s, m, h, d, mo, y,calendar);
-		}else if(yd==0 && mod==0 && dd>0) {
-			update(s, m, h, d, mo, y,calendar);
-		}else if(yd==0 && mod==0 && dd==0 && hd>0) {
-			update(s, m, h, d, mo, y,calendar);
-		}else if(yd==0 && mod==0 && dd==0 && hd==0 && md>0) {
-			update(s, m, h, d, mo, y,calendar);
-		}else if(yd==0 && mod==0 && dd==0 && hd==0 && md==0 && sd>0) {
-			update(s, m, h, d, mo, y,calendar);
-		}
+		dateTimeDiff.setSeconds(sd+dateTimeDiff.getSeconds());
+		dateTimeDiff.setMinutes(md+dateTimeDiff.getMinutes());
+		dateTimeDiff.setHour(hd+dateTimeDiff.getHour());
+		dateTimeDiff.setDays(dd+dateTimeDiff.getDays());
+		dateTimeDiff.setMonths(mod+dateTimeDiff.getMonths());
+		dateTimeDiff.setYears(yd+dateTimeDiff.getYears());
+
 	}
 	
-	public void update(int s, int m,int h,int d,int mo,int y, Calendar calendar) {
-		dateTimeDiff.setSeconds(s+dateTimeDiff.getSeconds()-calendar.get(Calendar.SECOND));
-		dateTimeDiff.setMinutes(m+dateTimeDiff.getMinutes()-calendar.get(Calendar.MINUTE));
-		dateTimeDiff.setHour(h+dateTimeDiff.getHour()-calendar.get(Calendar.HOUR_OF_DAY));
-		dateTimeDiff.setDays(d+dateTimeDiff.getDays()-calendar.get(Calendar.DAY_OF_MONTH));
-		dateTimeDiff.setMonths(mo+dateTimeDiff.getMonths()-calendar.get(Calendar.MONTH)+1);
-		dateTimeDiff.setYears(y+dateTimeDiff.getYears()-calendar.get(Calendar.YEAR));
-	}
-	
+	//////////////////////////////////////////////////////////////////
 	public void updateDate() {
 		Calendar calendar = new GregorianCalendar();
 		current.setSeconds(calendar.get(Calendar.SECOND));
@@ -349,31 +326,32 @@ public class ControlSystem implements Serializable{
 			throw new ThereAreNoTurnsForAttendException();
 		}else {
 			boolean attended = true;
+			
 			for(int i=0;i<turns.size() && attended;i++) {
 				//Calendar calendar = new GregorianCalendar();
 				int minutes = (int)turns.get(0).getTurnType().getMinutesDelay();
 				int seconds = (int)((turns.get(0).getTurnType().getMinutesDelay()-minutes)*60);
 				
 				Calendar programDate = new GregorianCalendar();
-				programDate.add(Calendar.YEAR, dateTimeDiff.getYears());
-				programDate.add(Calendar.MONTH, dateTimeDiff.getMonths());
-				programDate.add(Calendar.DAY_OF_MONTH, dateTimeDiff.getDays());
-				programDate.add(Calendar.HOUR_OF_DAY, dateTimeDiff.getHour());
-				programDate.add(Calendar.MINUTE, dateTimeDiff.getMinutes());
-				programDate.add(Calendar.SECOND, dateTimeDiff.getSeconds());
+				programDate.set(Calendar.YEAR, current.getYears()+dateTimeDiff.getYears());
+				programDate.set(Calendar.MONTH, current.getMonths()+dateTimeDiff.getMonths());
+				programDate.set(Calendar.DAY_OF_MONTH, current.getDays()+dateTimeDiff.getDays());
+				programDate.set(Calendar.HOUR_OF_DAY, current.getHour()+dateTimeDiff.getHour());
+				programDate.set(Calendar.MINUTE, current.getMinutes()+dateTimeDiff.getMinutes());
+				programDate.set(Calendar.SECOND, current.getSeconds()+dateTimeDiff.getSeconds());
 				 
 				Calendar la = new GregorianCalendar();
-				la.add(Calendar.YEAR, -(Calendar.YEAR-lastAttended.getYears()));
-				la.add(Calendar.MONTH, -(Calendar.MONTH-lastAttended.getMonths()));
-				la.add(Calendar.DAY_OF_MONTH, -(Calendar.DAY_OF_MONTH-lastAttended.getDays()));
-				la.add(Calendar.HOUR_OF_DAY, -(Calendar.HOUR_OF_DAY-dateTimeDiff.getHour()));
-				la.add(Calendar.MINUTE, -(Calendar.MINUTE-dateTimeDiff.getMinutes()));
-				la.add(Calendar.SECOND, -(Calendar.SECOND-dateTimeDiff.getSeconds()));
+				la.set(Calendar.YEAR,lastAttended.getYears());
+				la.set(Calendar.MONTH, lastAttended.getMonths());
+				la.set(Calendar.DAY_OF_MONTH, lastAttended.getDays());
+				la.set(Calendar.HOUR_OF_DAY, lastAttended.getHour());
+				la.set(Calendar.MINUTE, lastAttended.getMinutes());
+				la.set(Calendar.SECOND, lastAttended.getSeconds());
+				System.out.println();
+				la.set(Calendar.MINUTE,la.get(Calendar.MINUTE)+minutes);
+				la.set(Calendar.SECOND,la.get(Calendar.SECOND)+seconds+15);
 				
-				la.add(la.get(Calendar.MINUTE), minutes);
-				la.add(la.get(Calendar.SECOND), seconds+15);
-				
-				if(programDate.before(la)) {
+				if(la.before(programDate)) {
 					if(turns.isEmpty()) {
 						lastAttended.setYears(programDate.get(Calendar.YEAR));
 						lastAttended.setMonths(programDate.get(Calendar.MONTH));
@@ -403,7 +381,7 @@ public class ControlSystem implements Serializable{
 			}
 		}
 	}
-	
+	//////////////////////////////////////////////////////////////////////////////
 	//crear un metodo para generar turnos al azar, poniendo el total de dias y el numero de turnos por dia
 	public void generateRandomTurn() throws UserNotFoundException, UserAlreadyHasATurnException, ThereIsNotTurnTypeException {
 		Random r = new Random();
@@ -421,6 +399,7 @@ public class ControlSystem implements Serializable{
 		passTurn();
 	}
 	
+	/////////////////////////////////////////////////////////////////////////////////////
 	public String ReportTurnsPerson(String id, String typeId) throws UserNotFoundException {
 		String report="";
 		searchUser(id,typeId);
@@ -603,15 +582,18 @@ public class ControlSystem implements Serializable{
 		for(int i=0;i<users.size();i++) {
 			ArrayList<Turn> t = new ArrayList<Turn>();
 			t = users.get(i).getArrayTurn();
-			if(t.get(t.size()-1).getUserStatus().equalsIgnoreCase(Turn.USER_WAS_NOT) && t.get(t.size()-2).getUserStatus().equalsIgnoreCase(Turn.USER_WAS_NOT)) {
-				Calendar ca = new GregorianCalendar();
-				int s = ca.get(Calendar.SECOND);
-				int m = ca.get(Calendar.MINUTE);
-				int h = ca.get(Calendar.HOUR_OF_DAY);
-				int d = ca.get(Calendar.DAY_OF_MONTH);
-				int mo = ca.get(Calendar.MONTH);
-				int y = ca.get(Calendar.YEAR);
-				users.get(i).setDt(s, m, h, d, mo, y);
+			if(!(t.size()<2)) {
+				if(t.get(t.size()-1).getUserStatus().equalsIgnoreCase(Turn.USER_WAS_NOT) && t.get(t.size()-2).getUserStatus().equalsIgnoreCase(Turn.USER_WAS_NOT)) {
+					Calendar ca = new GregorianCalendar();
+					int s = ca.get(Calendar.SECOND);
+					int m = ca.get(Calendar.MINUTE);
+					int h = ca.get(Calendar.HOUR_OF_DAY);
+					ca.add(ca.get(Calendar.DAY_OF_MONTH), 2);
+					int d = ca.get(Calendar.DAY_OF_MONTH);
+					int mo = ca.get(Calendar.MONTH);
+					int y = ca.get(Calendar.YEAR);
+					users.get(i).setDt(s, m, h, d, mo, y);
+				}
 			}
 		}
 	}
@@ -625,6 +607,68 @@ public class ControlSystem implements Serializable{
 		}
 		
 		return message;
+	}
+	
+	/**
+	 * <b>Name:</b> resetTurns.<br>
+	 * This method resets the turn counter .<br>
+	 * @return void.<br>
+	*/
+	public void resetTurns() {///////////////////////////////////////////////////
+		letter=0;
+		nOne=0;
+		nTwo=0;
+	}
+	
+	public String getNumber() {
+		return String.valueOf(alphabet[letter])+Integer.toString(nTwo)+Integer.toString(nOne);
+	}
+	
+	public ArrayList<User> getUsers() {
+		return users;
+	}
+	
+	public ArrayList<Turn> getTurns(){
+		return turns;
+	}
+	
+	public ArrayList<Turn> getTurnsAttended(){
+		return turnsAttended;
+	}
+	
+	public ArrayList<TurnType> getTurnsType(){
+		return turnType;
+	}
+	
+	public DateTime getDateTimeDiff() {
+		return dateTimeDiff;
+	}
+	
+	public DateTime getCurrendDateTime() {
+		return current;
+	}
+	
+	public void setLastAttended() {
+		lastAttended.setSeconds(current.getSeconds());  
+		lastAttended.setMinutes(current.getMinutes());  
+		lastAttended.setHour(current.getHour());  
+		lastAttended.setDays(current.getDays());
+		lastAttended.setMonths(current.getMonths());
+		lastAttended.setYears(current.getYears());  
+	}
+	
+	public String showTime() {
+		Calendar pD = new GregorianCalendar();
+		pD.set(Calendar.YEAR, current.getYears()+dateTimeDiff.getYears());
+		pD.set(Calendar.MONTH, current.getMonths()+dateTimeDiff.getMonths());
+		pD.set(Calendar.DAY_OF_MONTH, current.getDays()+dateTimeDiff.getDays());
+		pD.set(Calendar.HOUR_OF_DAY, current.getHour()+dateTimeDiff.getHour());
+		pD.set(Calendar.MINUTE, current.getMinutes()+dateTimeDiff.getMinutes());
+		pD.set(Calendar.SECOND, current.getSeconds()+dateTimeDiff.getSeconds());
+		
+		return  String.valueOf(pD.get(Calendar.YEAR))+"/"+String.valueOf(pD.get(Calendar.MONTH))+"/"
+				+String.valueOf(pD.get(Calendar.DAY_OF_MONTH))+"     "+String.valueOf(pD.get(Calendar.HOUR_OF_DAY))
+				+":"+String.valueOf(pD.get(Calendar.MINUTE))+":"+String.valueOf(pD.get(Calendar.SECOND));
 	}
 	
 }
