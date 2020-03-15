@@ -96,6 +96,5 @@ class UserTest {
 		turn2.setUserStatus(Turn.ATTENDED);
 		assertTrue("active turn should be false",user.getActiveTurn()==false);
 		assertNull("getTurn is differend from null",user.getTurn());
-		
 	}
 }
