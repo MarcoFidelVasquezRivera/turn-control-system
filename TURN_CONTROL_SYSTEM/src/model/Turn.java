@@ -1,16 +1,17 @@
 package model;
 
-public class Turn {
+public class Turn implements Comparable<Turn>{
 //+++++++++++++++++++++++++++++++++++
 //    CONSTANTS
 //+++++++++++++++++++++++++++++++++++
-	public final static String ATTENDED="attended correctly";
+	public final static String ATTENDED="user was attended correctly";
 	public final static String USER_WAS_NOT="user was not";
 	public final static String NOT_ATTENDED_YET="not attended yet";
 //+++++++++++++++++++++++++++++++++++
 //	 ATTRIBUTES
 //+++++++++++++++++++++++++++++++++++
 	private TurnType turnType;
+	private String userTypeId;
 	private String number;
 	private String userName;
 	private String userId;
@@ -18,12 +19,13 @@ public class Turn {
 //+++++++++++++++++++++++++++++++++++
 //	  METHODS
 //+++++++++++++++++++++++++++++++++++
-	public Turn(String number, String userName, String userId, String userStatus, TurnType turnType) {
+	public Turn(String number, String userName, String userId, String userStatus, TurnType turnType, String typeId) {
 		this.number=number;
 		this.userName=userName;
 		this.userId=userId;
 		this.userStatus=userStatus;
 		this.turnType=turnType;
+		this.userTypeId=typeId;
 	}
 	
 	public String getNumber() {
@@ -51,7 +53,30 @@ public class Turn {
 		this.userStatus = userStatus;
 	}
 	
+	public String getUserTypeId() {
+		return userTypeId;
+	}
+	
 	public TurnType getTurnType() {
 		return turnType;
 	}
+
+	@Override
+	public int compareTo(Turn o) {
+		String number1 = number;
+		String number2 = o.number;
+		
+		int comparation;
+		
+		if(number1.compareTo(number2)<0) {
+			comparation = -1;
+		}else if(number1.compareTo(number2)>0) {
+			comparation = 1;
+		}else {
+			comparation=0;
+		}
+		
+		return comparation;
+	}
+	
 }

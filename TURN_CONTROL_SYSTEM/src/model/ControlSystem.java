@@ -1,17 +1,22 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import customExceptions.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Random;
 import java.util.GregorianCalendar;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 
-public class ControlSystem {
+@SuppressWarnings("serial")
+public class ControlSystem implements Serializable{
 //+++++++++++++++++++++++++++++++++++
 //	 ATTRIBUTES
 //+++++++++++++++++++++++++++++++++++
@@ -110,19 +115,28 @@ public class ControlSystem {
 		searchUser(id,typeId);
 		String message="";
 		boolean flag=false;
-		User auxUser=null;
 		
 		for(int i=0;i<users.size() && !flag;i++) {
 	
 			if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getActiveTurn()!=false) {
 				throw new UserAlreadyHasATurnException(id,typeId,users.get(i).getFirstNames(),users.get(i).getTurn().getNumber());			
 			}else if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId) && users.get(i).getActiveTurn()==false) {	
+				Calendar ca = new GregorianCalendar();
 				
-				Turn newTurn = new Turn(String.valueOf(alphabet[letter])+Integer.toString(nTwo)+Integer.toString(nOne), users.get(i).getFirstNames()+users.get(i).getLastNames(), users.get(i).getId(), Turn.NOT_ATTENDED_YET,tp);
-				users.get(i).setTurn(newTurn);
-				turns.add(newTurn);
-				message="the turn has been assigned: \n"+users.get(i).getTurn().getNumber();
+				Calendar userDate = new GregorianCalendar();
+				userDate.add(Calendar.YEAR, (-Calendar.YEAR+dateTimeDiff.getYears()));
+				userDate.add(Calendar.MONTH, (-Calendar.MONTH+dateTimeDiff.getMonths()));
+				userDate.add(Calendar.DAY_OF_MONTH, (-Calendar.DAY_OF_MONTH+dateTimeDiff.getDays()));
+				userDate.add(Calendar.HOUR_OF_DAY, (-Calendar.HOUR_OF_DAY+dateTimeDiff.getHour()));
+				userDate.add(Calendar.MINUTE, (-Calendar.MINUTE+dateTimeDiff.getMinutes()));
+				userDate.add(Calendar.SECOND, (-Calendar.SECOND+dateTimeDiff.getSeconds()));
 				
+				if(ca.before(userDate)) {
+					Turn newTurn = new Turn(String.valueOf(alphabet[letter])+Integer.toString(nTwo)+Integer.toString(nOne), users.get(i).getFirstNames()+users.get(i).getLastNames(), users.get(i).getId(), Turn.NOT_ATTENDED_YET,tp,typeId);
+					users.get(i).setTurn(newTurn);
+					turns.add(newTurn);
+					message="the turn has been assigned: \n"+users.get(i).getTurn().getNumber();
+				}
 				passTurn();	
 				flag=true;
 			}
@@ -193,6 +207,7 @@ public class ControlSystem {
 		if(turns.isEmpty()) {
 			throw new ThereAreNoTurnsForAttendException();
 		}else {
+			
 			turnsAttended.add(turns.get(0));
 			turnsAttended.get(turnsAttended.size()-1).setUserStatus(status);
 			turns.remove(0);
@@ -335,7 +350,7 @@ public class ControlSystem {
 		}else {
 			boolean attended = true;
 			for(int i=0;i<turns.size() && attended;i++) {
-				Calendar calendar = new GregorianCalendar();
+				//Calendar calendar = new GregorianCalendar();
 				int minutes = (int)turns.get(0).getTurnType().getMinutesDelay();
 				int seconds = (int)((turns.get(0).getTurnType().getMinutesDelay()-minutes)*60);
 				
@@ -358,7 +373,7 @@ public class ControlSystem {
 				la.add(la.get(Calendar.MINUTE), minutes);
 				la.add(la.get(Calendar.SECOND), seconds+15);
 				
-				if(la.getTimeInMillis()<=programDate.getTimeInMillis()) {
+				if(programDate.before(la)) {
 					if(turns.isEmpty()) {
 						lastAttended.setYears(programDate.get(Calendar.YEAR));
 						lastAttended.setMonths(programDate.get(Calendar.MONTH));
@@ -406,9 +421,210 @@ public class ControlSystem {
 		passTurn();
 	}
 	
-	//public String ReportTurnsPerson() {
+	public String ReportTurnsPerson(String id, String typeId) throws UserNotFoundException {
+		String report="";
+		searchUser(id,typeId);
+		ArrayList<Turn> t = new ArrayList<Turn> ();
+		boolean flag = false;
 		
-		//////////////
-	//}
+		for(int i=0;i<users.size() && !flag;i++) {
+			if(users.get(i).getId().equalsIgnoreCase(id) && users.get(i).getTypeId().equalsIgnoreCase(typeId)) {
+				t = users.get(i).getArrayTurn();
+				flag=true;
+			}
+		}
+		
+		for(int i=0;i<t.size();i++) {
+			String attended;
+			String status;
+			if(t.get(i).getUserStatus().equalsIgnoreCase(Turn.NOT_ATTENDED_YET)) {
+				attended = Turn.NOT_ATTENDED_YET;
+			}else {
+				attended = "attended";
+			}
+			
+			if(attended.equalsIgnoreCase("attended")) {
+				status = t.get(i).getUserStatus();
+			}else {
+				status = "xxxxxxxxxxxxxxxxxxxx";
+			}
+			report = report+"turn's number: "+t.get(i).getNumber()+"----"+attended+"----"+status+"\n";
+			report = report+"----------------------------------------------- \n";
+			// turno, si ya fue atendido y si la persona estba presente cuando fue llamada
+		}
+		
+		return report;
+	}
+	
+	public String reportPeopleByTurn(String t) {
+		String report = "";
+		String attended = "";
+		boolean flag = false;
+		Collections.sort(turns);
+		//comparator to sort attendedTurns
+		Comparator<Turn> co = new Comparator<Turn>() {
+
+			@Override
+			public int compare(Turn o1, Turn o2) {
+				String number1 = o1.getNumber();
+				String number2 = o2.getNumber();
+				
+				int comparation;
+				
+				if(number1.compareTo(number2)<0) {
+					comparation = -1;
+				}else if(number1.compareTo(number2)>0) {
+					comparation = 1;
+				}else {
+					comparation=0;
+				}
+				
+				return comparation;
+			}
+			
+		};
+		Collections.sort(turnsAttended,co);
+		int index = turnBynarySearch(turns, t);
+		
+		for(int i=index;i<turns.size() && !flag;i++) {
+			if(turns.get(i).getNumber().equalsIgnoreCase(t)) {
+				if(turns.get(i).getUserStatus().equalsIgnoreCase(Turn.NOT_ATTENDED_YET)) {
+					attended = Turn.NOT_ATTENDED_YET;
+				}else {
+					attended = "attended";
+				}
+				report = report+"Name: "+turns.get(i).getUserName()+"----"+"type of id: "+turns.get(i).getUserTypeId()+"----"+"id: "+turns.get(i).getUserId()+"----"+attended+"\n";
+				report = report+"----------------------------------------------- \n";
+			}else {
+				flag=true;
+			}
+		}
+		
+		flag = false;
+		for(int i=index-1;i>=0 && !flag;i--) {
+			if(turns.get(i).getNumber().equalsIgnoreCase(t)) {
+				if(turns.get(i).getUserStatus().equalsIgnoreCase(Turn.NOT_ATTENDED_YET)) {
+					attended = Turn.NOT_ATTENDED_YET;
+				}else {
+					attended = "attended";
+				}
+				report = report+"Name: "+turns.get(i).getUserName()+"----"+"type of id: "+turns.get(i).getUserTypeId()+"----"+"id: "+turns.get(i).getUserId()+"----"+attended+"\n";
+				report = report+"----------------------------------------------- \n";
+			}else {
+				flag=true;
+			}
+		}
+		/*
+		for(int i=0;i<turns.size();i++) {
+			if(turns.get(i).getNumber().equalsIgnoreCase(t)) {
+				if(turns.get(i).getUserStatus().equalsIgnoreCase(Turn.NOT_ATTENDED_YET)) {
+					attended = Turn.NOT_ATTENDED_YET;
+				}else {
+					attended = "attended";
+				}
+				report = report+"Name: "+turns.get(i).getUserName()+"----"+"type of id: "+turns.get(i).getUserTypeId()+"----"+"id: "+turns.get(i).getUserId()+"----"+attended+"\n";
+				report = report+"-----------------------------------------------";
+			}
+		}
+		*/
+		index = turnBynarySearch(turnsAttended, t);
+		flag = false;
+		for(int i=index;i<turns.size() && !flag;i++) {
+			if(turnsAttended.get(i).getNumber().equalsIgnoreCase(t)) {
+				if(turnsAttended.get(i).getUserStatus().equalsIgnoreCase(Turn.NOT_ATTENDED_YET)) {
+					attended = Turn.NOT_ATTENDED_YET;
+				}else {
+					attended = "attended";
+				}
+				report = report+"Name: "+turnsAttended.get(i).getUserName()+"----"+"type of id: "+turnsAttended.get(i).getUserTypeId()+"----"+"id: "+turnsAttended.get(i).getUserId()+"----"+attended+"\n";
+				report = report+"----------------------------------------------- \n";
+			}else {
+				flag=true;
+			}
+			
+		}
+		
+		flag = false;
+		for(int i=index-1;i>=0 && !flag;i--) {
+			if(turnsAttended.get(i).getNumber().equalsIgnoreCase(t)) {
+				if(turnsAttended.get(i).getUserStatus().equalsIgnoreCase(Turn.NOT_ATTENDED_YET)) {
+					attended = Turn.NOT_ATTENDED_YET;
+				}else {
+					attended = "attended";
+				}
+				report = report+"Name: "+turnsAttended.get(i).getUserName()+"----"+"type of id: "+turnsAttended.get(i).getUserTypeId()+"----"+"id: "+turnsAttended.get(i).getUserId()+"----"+attended+"\n";
+				report = report+"----------------------------------------------- \n";
+			}else {
+				flag=true;
+			}
+			
+		}
+		/*
+		for(int i=0;i<turnsAttended.size();i++) {
+			if(turnsAttended.get(i).getNumber().equalsIgnoreCase(t)) {
+				if(turnsAttended.get(i).getUserStatus().equalsIgnoreCase(Turn.NOT_ATTENDED_YET)) {
+					attended = Turn.NOT_ATTENDED_YET;
+				}else {
+					attended = "attended";
+				}
+				report = report+"Name: "+turnsAttended.get(i).getUserName()+"----"+"type of id: "+turnsAttended.get(i).getUserTypeId()+"----"+"id: "+turnsAttended.get(i).getUserId()+"----"+attended+"\n";
+				report = report+"-----------------------------------------------";
+			}
+		}
+		*/
+		
+		return report;
+	}
+	
+	public int turnBynarySearch(ArrayList<Turn> t, String s) {
+		int position = 0;
+		int max = t.size()-1;
+		int min = 0;
+		int middle = (max+min)/2;
+		
+		while(min<=max) {
+			if(t.get(middle).getNumber().equalsIgnoreCase(s)) {
+				position=middle;
+			}else if(t.get(middle).getNumber().compareTo(s)<0) {
+				min = middle+1;
+			}else {
+				max = middle-1;
+			}
+			middle = (max+min)/2;
+		}
+		
+		return position;
+	}
+	
+	public void suspendUsers() {
+		Comparator<User> co = new UsersFirstNameComparator();
+		Collections.sort(users,co);
+		
+		for(int i=0;i<users.size();i++) {
+			ArrayList<Turn> t = new ArrayList<Turn>();
+			t = users.get(i).getArrayTurn();
+			if(t.get(t.size()-1).getUserStatus().equalsIgnoreCase(Turn.USER_WAS_NOT) && t.get(t.size()-2).getUserStatus().equalsIgnoreCase(Turn.USER_WAS_NOT)) {
+				Calendar ca = new GregorianCalendar();
+				int s = ca.get(Calendar.SECOND);
+				int m = ca.get(Calendar.MINUTE);
+				int h = ca.get(Calendar.HOUR_OF_DAY);
+				int d = ca.get(Calendar.DAY_OF_MONTH);
+				int mo = ca.get(Calendar.MONTH);
+				int y = ca.get(Calendar.YEAR);
+				users.get(i).setDt(s, m, h, d, mo, y);
+			}
+		}
+	}
+	
+	public String showTurnsType() {
+		String message="";
+		
+		for(int i=0; i<turnType.size();i++) {
+			message = message+"Name: "+turnType.get(i).getName()+"---"+"Duration: "+String.valueOf(turnType.get(i).getMinutesDelay())+"\n";
+			message= message+"------------------------------ \n";
+		}
+		
+		return message;
+	}
 	
 }

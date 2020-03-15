@@ -1,16 +1,17 @@
-package test;
+package model;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-import model.ControlSystem;
-import model.Turn;
-import model.User;
-import customExceptions.*;
+
+import customExceptions.UserAlreadyExistException;
+import customExceptions.UserAlreadyHasATurnException;
+import customExceptions.UserNotFoundException;
 
 class ControlSystemTest {
-	ControlSystem cs;
+
+	private ControlSystem cs;
 	
 	public void setup1() {
 		cs = new ControlSystem();
@@ -195,4 +196,5 @@ class ControlSystemTest {
 		}
 	}
 	*/
+
 }

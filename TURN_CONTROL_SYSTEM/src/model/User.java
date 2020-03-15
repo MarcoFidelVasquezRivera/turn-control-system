@@ -14,13 +14,14 @@ public class User {
 //+++++++++++++++++++++++++++++++++++
 //    		 ATTRIBUTES
 //+++++++++++++++++++++++++++++++++++
+	private ArrayList<Turn> turn = new ArrayList<Turn>();
+	private DateTime dt = new DateTime();
 	private String typeId;
 	private String id;
 	private String firstNames;
 	private String lastNames;
 	private String address; 
 	private String telephone;
-	private ArrayList<Turn> turn = new ArrayList<Turn>();
 //+++++++++++++++++++++++++++++++++++
 //        	  METHODS
 //+++++++++++++++++++++++++++++++++++
@@ -109,6 +110,9 @@ public class User {
 		this.turn.add(turn);
 	}
 	
+	public ArrayList<Turn> getArrayTurn(){
+		return turn;
+	}
 	
 	/**
 	 * <b>Name:</b> toString.<br>
@@ -117,6 +121,19 @@ public class User {
 	*/
 	public String toString() {
 		return "type ID: "+typeId+"\nID: "+id+"\nfirst names: "+firstNames+"\nlast names: "+lastNames+"\naddress: "+address+"\ntelephone: "+telephone;
+	}
+	
+	public DateTime getDt() {
+		return dt;
+	}
+	
+	public void setDt(int s, int m,int h,int d,int mo,int y) {
+		dt.setSeconds(s);
+		dt.setMinutes(m);
+		dt.setHour(h);
+		dt.setDays(d);
+		dt.setMonths(mo);
+		dt.setYears(y);
 	}
 	
 }
