@@ -72,33 +72,30 @@ class UserTest {
 		user.setTurn(turn);
 		assertTrue("arrayList of turn should be empty",user.getArrayTurn().isEmpty()==false);
 		assertTrue("getTurn is differend from null",user.getTurn()!=null);
+		assertTrue("getTurn is differend from null",user.getTurn()==turn);
 		assertTrue("active turn should be false",user.getActiveTurn()==true);
 		assertEquals("user status in the turn should be 'not attended yet'.",Turn.NOT_ATTENDED_YET,user.getTurn().getUserStatus());
 		
+		turn.setUserStatus(Turn.ATTENDED);
+		assertTrue("active turn should be false",user.getActiveTurn()==false);
+		assertNull("getTurn is differend from null",user.getTurn());
 		
+		String turn2number = "A01";
+		//turn = new Turn(turnNumber, userName, userId, userStatus, turnType, typeId);
+		Turn turn2 = new Turn(turn2number, userName, userId, userStatus, turnType, typeId);
+		user.setTurn(turn2);
 		
+		assertTrue("arrayList of turn should be empty",user.getArrayTurn().isEmpty()==false);
+		assertTrue("arrayList's size should be 2",user.getArrayTurn().size()==2);
+		assertTrue("firstTurn is different",user.getArrayTurn().get(0)==turn);
+		assertTrue("secondTurn is different",user.getArrayTurn().get(1)==turn2);
+		assertTrue("active turn should be false",user.getActiveTurn()==true);
+		assertTrue("getTurn is differend from null",user.getTurn()==turn2);
+		assertEquals("user status in the turn should be 'not attended yet'.",Turn.NOT_ATTENDED_YET,user.getTurn().getUserStatus());
 		
-		/*
-		assertTrue("Constructor is no working corretly assigning the type of ID",user.getTypeId().equalsIgnoreCase(User.CC));
-		assertTrue("Constructor is no working corretly assigning the ID",user.getId().equalsIgnoreCase("1006309297"));
-		assertTrue("Constructor is no working corretly assigning the first names",user.getFirstNames().equalsIgnoreCase("Marco Fidel"));
-		assertTrue("Constructor is no working corretly assigning the last names",user.getLastNames().equalsIgnoreCase("Vasquez Rivera"));
-		assertTrue("Constructor is no working corretly assigning the address",user.getAddress().equalsIgnoreCase("333-444"));
-		assertTrue("Constructor is no working corretly assigning the telephone",user.getTelephone().equalsIgnoreCase("3163886825"));
-		user.setTurn(turn);
+		turn2.setUserStatus(Turn.ATTENDED);
+		assertTrue("active turn should be false",user.getActiveTurn()==false);
+		assertNull("getTurn is differend from null",user.getTurn());
 		
-		assertTrue("set Turn is not working corrently",user.getTurn().getNumber().equalsIgnoreCase("A00"));
-		assertTrue("set Turn is not working corrently",user.getTurn().getUserName().equalsIgnoreCase("Marco Fidel Vasquez Rivera"));
-		assertTrue("set Turn is not working corrently",user.getTurn().getUserId().equalsIgnoreCase("1006309297"));
-		assertTrue("set Turn is not working corrently",user.getTurn().getUserStatus().equalsIgnoreCase(Turn.NOT_ATTENDED_YET));
-		
-		user.setTurn(null);
-		
-		user.setTurn("A00", "Marco Fidel Vasquez Rivera", "1006309297", Turn.NOT_ATTENDED_YET);
-		assertTrue("set Turn is not working corrently",user.getTurn().getNumber().equalsIgnoreCase("A00"));
-		assertTrue("set Turn is not working corrently",user.getTurn().getUserName().equalsIgnoreCase("Marco Fidel Vasquez Rivera"));
-		assertTrue("set Turn is not working corrently",user.getTurn().getUserId().equalsIgnoreCase("1006309297"));
-		assertTrue("set Turn is not working corrently",user.getTurn().getUserStatus().equalsIgnoreCase(Turn.NOT_ATTENDED_YET));
-		*/
 	}
 }
